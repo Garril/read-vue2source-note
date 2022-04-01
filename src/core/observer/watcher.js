@@ -16,6 +16,7 @@ import { queueWatcher } from './scheduler'
 import Dep, { pushTarget, popTarget } from './dep'
 
 import type { SimpleSet } from '../util/index'
+import { json } from 'stream/consumers'
 
 let uid = 0
 
@@ -56,13 +57,13 @@ export default class Watcher {
     }
     vm._watchers.push(this)
     // options
-    if (options) {
+    if (options) { // 有options，没设定为true的属性，就默认是false
       this.deep = !!options.deep
       this.user = !!options.user
       this.lazy = !!options.lazy
       this.sync = !!options.sync
       this.before = options.before
-    } else {
+    } else { // 没有options，默认也是false
       this.deep = this.user = this.lazy = this.sync = false
     }
     this.cb = cb
@@ -86,7 +87,10 @@ export default class Watcher {
      */
     if (typeof expOrFn === 'function') {
       this.getter = expOrFn // expOrFn是函数，存到getter里
-    } else {
+    } else { // expOrFn是字符串，帮你包装成函数
+      /* 比如vm.$watch('message',() => {...})，expOrFn是字符串message，包装成
+        function() { return vm.message }，还是做取值这件事
+      */
       this.getter = parsePath(expOrFn)
       if (!this.getter) {
         this.getter = noop
@@ -101,18 +105,23 @@ export default class Watcher {
     // 计算属性 --- 传入的lazy为true，就代表：默认什么都不做
     this.value = this.lazy // 默认 watcher不会执行计算属性中的函数（只有在页面上取值的时候执行）
       ? undefined
-      : this.get()
+      : this.get() // 自己写的watch就是false，调用get -- 就会调用getter，就是执行用户自己定义的方法
   }
 
   /**
    * Evaluate the getter, and re-collect dependencies.
    */
   get () {
-    pushTarget(this) // 将 watcher 放到全局上 --- 当我取值的时候，
+    pushTarget(this) // 将 watcher 放到全局上 --- Dep.target = watcher 当我取值的时候，
     //  会进行依赖收集，把当前计算属性的watcher收集起来 ---> 数据一变，就会重新执行（调update）
     let value
     const vm = this.vm
-    try { // getter就是用户传入的方法 --- if判断一定是function
+    try {
+      /* 像watch，对象内对象的监视--deep:true其实就是判断：
+      如果是对象，把对象再循环一遍，循环取值的过程，也会把watch存起来
+      为什么computed没有deep：true？ 他内部是用在模板里的，比如：{{xxx}}，
+      在模板中数据会调用JSON.stringify({对象})
+      会默认对对象中的所有属性都进行求值（但是watch单独监控对象，是不行的，因为是监控的最外层对象） */
       value = this.getter.call(vm, vm) // 取值 会进行依赖收集
     } catch (e) {
       if (this.user) {

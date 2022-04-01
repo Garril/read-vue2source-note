@@ -358,8 +358,9 @@ export function stateMixin (Vue: Class<Component>) {
       return createWatcher(vm, expOrFn, cb, options)
     }
     options = options || {}
-    options.user = true
-    const watcher = new Watcher(vm, expOrFn, cb, options)
+    options.user = true // 表示和渲染计算属性无关，是用户自己写的watcher
+    // 用法：vm.$watch('message',() => {...}) ,第一个参数message传到 expOrFn，第二个参数回调函数传到cb
+    const watcher = new Watcher(vm, expOrFn, cb, options) // 核心在这，new了一个Watcher
     if (options.immediate) {
       const info = `callback for immediate watcher "${watcher.expression}"`
       pushTarget()

@@ -29,10 +29,10 @@ function _traverse (val: any, seen: SimpleSet) {
     }
     seen.add(depId)
   }
-  if (isA) {
+  if (isA) { // 是数组的话
     i = val.length
-    while (i--) _traverse(val[i], seen)
-  } else {
+    while (i--) _traverse(val[i], seen) // 循环数组，取值、递归 --- 耗性能
+  } else { // 是对象
     keys = Object.keys(val)
     i = keys.length
     while (i--) _traverse(val[keys[i]], seen)
