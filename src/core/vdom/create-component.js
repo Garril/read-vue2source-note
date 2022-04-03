@@ -44,10 +44,14 @@ const componentVNodeHooks = {
       const mountedNode: any = vnode // work around flow
       componentVNodeHooks.prepatch(mountedNode, mountedNode)
     } else {
+      // 创建一个孩子
       const child = vnode.componentInstance = createComponentInstanceForVnode(
+        // createComponentInstanceForVnode --- 通过 vNode 去创建组件实例
+        // （vNode不是有Ctor吗？这里就是去new组件实例了）
         vnode,
         activeInstance
       )
+      // 调用孩子的 $mount
       child.$mount(hydrating ? vnode.elm : undefined, hydrating)
     }
   },
@@ -109,11 +113,11 @@ export function createComponent (
     return
   }
 
-  const baseCtor = context.$options._base
+  const baseCtor = context.$options._base // Vue
 
   // plain options object: turn it into a constructor
-  if (isObject(Ctor)) {
-    Ctor = baseCtor.extend(Ctor)
+  if (isObject(Ctor)) { // 传入对象
+    Ctor = baseCtor.extend(Ctor) // 通过传入的对象 去构造 构造函数
   }
 
   // if at this stage it's not a constructor or an async component factory,
@@ -183,7 +187,7 @@ export function createComponent (
   }
 
   // install component management hooks onto the placeholder node
-  installComponentHooks(data)
+  installComponentHooks(data) // 给component添加init、patch、insert、destory等hook
 
   // return a placeholder vnode
   const name = Ctor.options.name || tag

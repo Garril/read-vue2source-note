@@ -25,6 +25,10 @@ render() {  // 通过 render去产生上面的obj对象
  *  _c('div',{id: container},_c('p',{})) 类似的这种方法 --- 书签 installRenderHelpers
  * 内部调用了这样的方法，拿到了v-dom（简易版看example.js）
  * 
+ * 简略描述： template编译出render函数，render函数内会给你一个createElement，
+ * 执行完后，才会给你vnode
+ * 
+ * 
  * 为什么不直接把template直接转化为v-dom？
  * --- template为字符串，做不到直接把字符串转换为vdom（一个对象）
  * 所以有了中间的生成ast树，生成代码，转换为对象，这样的流程
