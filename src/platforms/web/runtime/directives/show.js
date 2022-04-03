@@ -9,7 +9,7 @@ function locateNode (vnode: VNode): VNodeWithData {
     : vnode
 }
 
-export default {
+export default { // v-show 指令的编写
   bind (el: any, { value }: VNodeDirective, vnode: VNodeWithData) {
     vnode = locateNode(vnode)
     const transition = vnode.data && vnode.data.transition
@@ -21,7 +21,8 @@ export default {
         el.style.display = originalDisplay
       })
     } else {
-      el.style.display = value ? originalDisplay : 'none'
+      el.style.display = value ? originalDisplay : 'none' // v-show:false设置display:none
+      // 如果value不是false，那就保持原样
     }
   },
 

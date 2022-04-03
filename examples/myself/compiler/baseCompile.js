@@ -173,27 +173,103 @@ function generate(el) {
   })`;
   return code;
 }
-// 根据语法树生成新的代码
-let code = generate(root);
-let render = `with(this){return ${code}}`;
+// 根据语法树生成新的代码 --- root就是我们生成的语法树的根节点，是createASTElement函数return的对象
+let code = generate(root); // code:string
+let render = `with(this){return ${code}}`; // render: string
 
 // 包装成函数
 let renderFn = new Function(render); // 模板引擎的实现
 console.log(renderFn.toString());
 /**
+ * 
  * function anonymous() { -- 这个就是render函数(我们写的是template模板，最后会变成这样一个函数)
  *    with(this) {
  *      return _c('div',{attrs:{id:container}},[_c('p',[_v("hello"),_c('span',[_v("zf")])])])   
  *      以前html标签，现在变成了js语法,_c是工具方法，用于生成虚拟节点
  *    }
  * }
+ * 
+ * 
+ * 3、为什么用with？
+ * 
+ * with虽然不安全，但是他帮我们解决作用域的问题
+ * 比如上面return的字符串中，如果有用到data数据，不可能通过vm.xxx去引用吧
+ * 只要通过with，让其身处vm作用域内，就可以直接用属性了，而不用前面加个vm.
+ *   eg: with(obj) {
+ *        console.log(a);  // 等价于外边的obj.a
+ *       }
+ * 
+ * 
+ * 4、v-if 如何通过true和false来控制是否渲染？
+ * 
+ * 实际是在上面render函数的基础上，对return做了一个修饰
+ * 
+ * 例子如下：
+ * 安装 vue-template-compiler
+ * const VueTemplateCompiler = require('vue-template-compiler');
+ * let r1 = VueTemplateCompiler.compiler(`<div v-if="true"><span v-for="i in 3">hello</span></div>`);
+ * with(this) {
+ *    return (true)? _c('div',_l(3), function(i) {
+ *        return _c('span', [_v("hello")])
+ *    },0) : e()
+ * }
+ * 
+ * 5、v-show 呢？
+ * 
+ * 例子如下：
+ * let r2 = VueTemplateCompiler.compiler(`<div v-show="true"></div>`);
+ * with(this) {
+ *    return _c('div',{
+ *        directives: [{
+ *            name: "show",
+ *            rawName: "v-show",
+ *            value: (true),
+ *            expression: "true"
+ *        }]
+ *    })
+ * }
+ * directives说明用了一个指令，名字，rawName，就是v-show
+ * 在运行阶段，会去运行这个指令，到 src/platforms/web/runtime/directives/show.js
+ * 
+ * 
+ * 
+ * 6、为什么v-for和v-if不能连着用？
+ * 
+ * （v-for优先级大于v-if）
+ * 例子如下：
+ * const VueTemplateCompiler = require('vue-template-compiler');
+ * let r1 = VueTemplateCompiler.compile(`<div v-if="false" v-for="i in 3">hello</div>`);
+ * with(this) {
+ *    return _l((3), function (i) {
+ *        return (false) ? _c('div', [_v("hello")]) : _e()
+ *    })
+ * }
+ * console.log(r1.render);
+ * 
+ * 上面div中，v-if和v-show都用了，但是render函数中的内容，可以看出
+ * 他是先循环v-for，再在每一个div加上判断v-if
+ * 元素一多，每个元素都要判断，就很耗性能。--- 一般外层套个templat v-if
+ * 不让放外层，还想让v-for和v-if连用，怎么处理？ --- 计算属性
+ * computed: {
+ *    arr() {
+ *      return xxx.filter(...)
+ *    }
+ * }
+ * 
  */
 
 /**
+ * 
  * 1、为什么vue2的 template下面只能有一个节点？
+ * 
  * diff算法---是树的比对，把树的根节点root传入
  * 
+ * 
  * 2、vdom和ast
+ * 
  * vdom：描述真实节点
  * ast：描述html/js语法
+ * ast树不是vdom，他不能表现出dom来，虽然展示都是对象，
+ * 但是他只能表现出html语法来，算是 vNode+data
+ * 
  */

@@ -402,6 +402,7 @@ export function createPatchFunction (backend) {
   }
 
   function updateChildren (parentElm, oldCh, newCh, insertedVnodeQueue, removeOnly) {
+    // 双指针的比对，但是怎么比的，vue做了什么优化？--- 看 图片：example/diff/childNode_compare.png和understand.js文件
     let oldStartIdx = 0
     let newStartIdx = 0
     let oldEndIdx = oldCh.length - 1
@@ -515,7 +516,7 @@ export function createPatchFunction (backend) {
       vnode = ownerArray[index] = cloneVNode(vnode)
     }
 
-    const elm = vnode.elm = oldVnode.elm
+    const elm = vnode.elm = oldVnode.elm // 两个vdom一样，复用老的 真实元素（赋给了新的 ）
 
     if (isTrue(oldVnode.isAsyncPlaceholder)) {
       if (isDef(vnode.asyncFactory.resolved)) {
@@ -544,7 +545,7 @@ export function createPatchFunction (backend) {
     if (isDef(data) && isDef(i = data.hook) && isDef(i = i.prepatch)) {
       i(oldVnode, vnode)
     }
-
+    // 拿出老和新节点 的儿子
     const oldCh = oldVnode.children
     const ch = vnode.children
     if (isDef(data) && isPatchable(vnode)) {
@@ -552,18 +553,28 @@ export function createPatchFunction (backend) {
       if (isDef(i = data.hook) && isDef(i = i.update)) i(oldVnode, vnode)
     }
     if (isUndef(vnode.text)) {
-      if (isDef(oldCh) && isDef(ch)) {
-        if (oldCh !== ch) updateChildren(elm, oldCh, ch, insertedVnodeQueue, removeOnly)
-      } else if (isDef(ch)) {
+      if (isDef(oldCh) && isDef(ch)) { // 两个都有儿子的情况下
+
+         // 去比较他们的儿子
+        if (oldCh !== ch) updateChildren(elm, oldCh, ch, inser tedVnodeQueue, removeOnly)
+
+      } else if (isDef(ch)) { // 只有新node有儿子
         if (process.env.NODE_ENV !== 'production') {
           checkDuplicateKeys(ch)
         }
         if (isDef(oldVnode.text)) nodeOps.setTextContent(elm, '')
+
+        // 把新增的儿子插入到老的dom中
         addVnodes(elm, null, ch, 0, ch.length - 1, insertedVnodeQueue)
-      } else if (isDef(oldCh)) {
-        removeVnodes(oldCh, 0, oldCh.length - 1)
-      } else if (isDef(oldVnode.text)) {
+
+      } else if (isDef(oldCh)) {  // 老的有儿子，新的没有
+
+        removeVnodes(oldCh, 0, oldCh.length - 1) // 把老的儿子，全删了
+
+      } else if (isDef(oldVnode.text)) {  // 老的有文本 新的没文本
+
         nodeOps.setTextContent(elm, '')
+
       }
     } else if (oldVnode.text !== vnode.text) {
       nodeOps.setTextContent(elm, vnode.text)
@@ -698,7 +709,7 @@ export function createPatchFunction (backend) {
   }
 
   return function patch (oldVnode, vnode, hydrating, removeOnly) {
-    if (isUndef(vnode)) {
+    if (isUndef(vnode)) { // isUndef:  return v === undefined || v === null
       if (isDef(oldVnode)) invokeDestroyHook(oldVnode)
       return
     }
@@ -711,8 +722,9 @@ export function createPatchFunction (backend) {
       isInitialPatch = true
       createElm(vnode, insertedVnodeQueue)
     } else {
-      const isRealElement = isDef(oldVnode.nodeType)
-      if (!isRealElement && sameVnode(oldVnode, vnode)) {
+      const isRealElement = isDef(oldVnode.nodeType) // !== undefined和null就为true
+      // 如果不是真实元素
+      if (!isRealElement && sameVnode(oldVnode, vnode)) { // sameVnode：为true表示两个虚拟节点相同
         // patch existing root node
         patchVnode(oldVnode, vnode, insertedVnodeQueue, null, null, removeOnly)
       } else {
