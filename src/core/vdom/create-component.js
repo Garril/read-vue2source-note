@@ -166,13 +166,15 @@ export function createComponent (
   if (isTrue(Ctor.options.functional)) {
     return createFunctionalComponent(Ctor, propsData, data, context, children)
   }
-
   // extract listeners, since these needs to be treated as
   // child component listeners instead of DOM listeners
-  const listeners = data.on
+
+  const listeners = data.on  // 他会把组件的on放到listeners
+
   // replace with listeners with .native modifier
   // so it gets processed during parent component patch.
-  data.on = data.nativeOn
+
+  data.on = data.nativeOn // 把nativeOn赋值给了on
 
   if (isTrue(Ctor.options.abstract)) {
     // abstract components do not keep anything

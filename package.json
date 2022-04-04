@@ -145,5 +145,8 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "dependencies": {
+    "vue-template-compiler": "^2.6.14"
   }
 }

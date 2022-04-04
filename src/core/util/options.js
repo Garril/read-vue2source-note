@@ -117,14 +117,14 @@ export function mergeDataOrFn (
     }
   }
 }
-
+// 用于合并data
 strats.data = function (
   parentVal: any,
   childVal: any,
   vm?: Component
 ): ?Function {
   if (!vm) {
-    if (childVal && typeof childVal !== 'function') {
+    if (childVal && typeof childVal !== 'function') { // 如果data不是函数 -- 报错
       process.env.NODE_ENV !== 'production' && warn(
         'The "data" option should be a function ' +
         'that returns a per-instance value in component ' +
@@ -382,10 +382,10 @@ function assertObjectType (name: string, value: any, vm: ?Component) {
 }
 
 /**
- * Merge two option objects into a new one.
+ * ！！Merge two option objects into a new one.！！
  * Core utility used in both instantiation and inheritance.
  */
-export function mergeOptions (
+export function mergeOptions ( // vue的合并，都会涉及到的方法
   parent: Object,
   child: Object,
   vm?: Component
@@ -407,6 +407,7 @@ export function mergeOptions (
   // the result of another mergeOptions call.
   // Only merged options has the _base property.
   if (!child._base) {
+    // 组件extends/mixins属性的合并
     if (child.extends) {
       parent = mergeOptions(parent, child.extends, vm)
     }
