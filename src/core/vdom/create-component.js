@@ -155,8 +155,8 @@ export function createComponent (
   resolveConstructorOptions(Ctor)
 
   // transform component v-model data into props & events
-  if (isDef(data.model)) {
-    transformModel(Ctor.options, data)
+  if (isDef(data.model)) { // 如果有model属性
+    transformModel(Ctor.options, data) // 转化model
   }
 
   // extract props
@@ -256,13 +256,14 @@ function mergeHook (f1: any, f2: any): Function {
 // transform component v-model info (value and callback) into
 // prop and event handler respectively.
 function transformModel (options, data: any) {
+  // 如果model中有prop和event属性，相当于把默认的value名字自和默认的方法名，修改了
   const prop = (options.model && options.model.prop) || 'value'
   const event = (options.model && options.model.event) || 'input'
-  ;(data.attrs || (data.attrs = {}))[prop] = data.model.value
-  const on = data.on || (data.on = {})
+  ;(data.attrs || (data.attrs = {}))[prop] = data.model.value // data.attrs.prop = "你赋的值"（prop没传就是value）
+  const on = data.on || (data.on = {}) // on就是data.on（组件事件绑定.native/普通元素绑定）
   const existing = on[event]
   const callback = data.model.callback
-  if (isDef(existing)) {
+  if (isDef(existing)) { // 如果有多个事件会push进去
     if (
       Array.isArray(existing)
         ? existing.indexOf(callback) === -1
@@ -271,6 +272,11 @@ function transformModel (options, data: any) {
       on[event] = [callback].concat(existing)
     }
   } else {
-    on[event] = callback
+    on[event] = callback // 给on绑定事件（默认input），对应callback
   }
+  /* 综上：
+    在你没有给 prop 和 event 的情况下，v-model就是input+value的语法糖
+    data.model.value 会加到 data.attrs.value
+    data.model.callback 会通过同理于 @input.native = data.model.callback的形式传入（即：放到on上）
+  */
 }

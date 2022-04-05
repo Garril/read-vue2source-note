@@ -12,7 +12,11 @@ console.log(r2); // {nativeOn:{click},on:{click}}
   组件中的 nativeOn 等价于 普通元素的 on
   组件的on单独处理（ 绑定个$on('click') ）
 源码路径：
-src/core/vdom/create-components.js --- line:172
+  src/core/vdom/create-components.js --- line:172
+补充：
+  组件的 @click如果内部函数没有调 $emit，那跟没写一样
+  要用 @click.native
+
 
 从源码可得：
   vue2不像react有事件代理
@@ -38,8 +42,9 @@ src/core/vdom/create-components.js --- line:172
 解决：
   div @click
     div v-for
-      div
-  用这种事件代理的方式去解决，vue2没有事件代理
+  用这种事件代理的方式（点击内层，事件冒泡）去解决，vue2没有事件代理
+  判断内层哪一个div触发？
+  内层div加个属性a，外层div, e.currentTarget.a
 */
 
 /* 
@@ -88,4 +93,5 @@ r2 如下：
   errors: [],
   tips: []
 }
+
 */

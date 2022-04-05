@@ -39,7 +39,7 @@ export type CodegenResult = {
   render: string,
   staticRenderFns: Array<string>
 };
-
+// 根据我们的ast树，生成代码
 export function generate (
   ast: ASTElement | void,
   options: CompilerOptions
@@ -48,7 +48,7 @@ export function generate (
   // fix #11483, Root level <script> tags should not be rendered.
   const code = ast ? (ast.tag === 'script' ? 'null' : genElement(ast, state)) : '_c("div")'
   return {
-    render: `with(this){return ${code}}`,
+    render: `with(this){return ${code}}`, // with在这，里面放了代码
     staticRenderFns: state.staticRenderFns
   }
 }

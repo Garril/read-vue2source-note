@@ -73,7 +73,8 @@ function genCheckboxModel (
   const valueBinding = getBindingAttr(el, 'value') || 'null'
   const trueValueBinding = getBindingAttr(el, 'true-value') || 'true'
   const falseValueBinding = getBindingAttr(el, 'false-value') || 'false'
-  addProp(el, 'checked',
+  // 对input type=checkbox的v-model处理
+  addProp(el, 'checked', // 加checked属性
     `Array.isArray(${value})` +
     `?_i(${value},${valueBinding})>-1` + (
       trueValueBinding === 'true'
@@ -81,7 +82,7 @@ function genCheckboxModel (
         : `:_q(${value},${trueValueBinding})`
     )
   )
-  addHandler(el, 'change',
+  addHandler(el, 'change', // 加change事件
     `var $$a=${value},` +
         '$$el=$event.target,' +
         `$$c=$$el.checked?(${trueValueBinding}):(${falseValueBinding});` +
@@ -167,8 +168,8 @@ function genDefaultModel (
     code = `if($event.target.composing)return;${code}`
   }
 
-  addProp(el, 'value', `(${value})`)
-  addHandler(el, event, code, null, true)
+  addProp(el, 'value', `(${value})`) // 默认加的value
+  addHandler(el, event, code, null, true) // 加event，可能是change/input，取决于lazy（v-model.lazy）
   if (trim || number) {
     addHandler(el, 'blur', '$forceUpdate()')
   }
