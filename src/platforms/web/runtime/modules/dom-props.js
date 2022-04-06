@@ -30,7 +30,7 @@ function updateDOMProps (oldVnode: VNodeWithData, vnode: VNodeWithData) {
     // as these will throw away existing DOM nodes and cause removal errors
     // on subsequent patches (#3360)
     if (key === 'textContent' || key === 'innerHTML') {
-      if (vnode.children) vnode.children.length = 0
+      if (vnode.children) vnode.children.length = 0 // 把孩子都变成空
       if (cur === oldProps[key]) continue
       // #6601 work around Chrome version <= 55 bug where single textNode
       // replaced by innerHTML/textContent retains its parentNode property

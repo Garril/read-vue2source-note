@@ -212,14 +212,15 @@ export function createPatchFunction (backend) {
     if (isDef(i)) {
       const isReactivated = isDef(vnode.componentInstance) && i.keepAlive
       if (isDef(i = i.hook) && isDef(i = i.init)) {
-        i(vnode, false /* hydrating */)
+        i(vnode, false /* hydrating */) // 初始化过程（遇到子组件就初始化，遇到子组件就初始化直到没子组件）
       }
       // after calling the init hook, if the vnode is a child component
       // it should've created a child instance and mounted it. the child
       // component also has set the placeholder vnode's elm.
       // in that case we can just return the element and be done.
       if (isDef(vnode.componentInstance)) {
-        initComponent(vnode, insertedVnodeQueue)
+        initComponent(vnode, insertedVnodeQueue) // 在这，子组件init完成后，先放队列里，之后再是父组件，再往上（先子后父）
+        // 执行在 invokeInsertHook函数
         insert(parentElm, vnode.elm, refElm)
         if (isTrue(isReactivated)) {
           reactivateComponent(vnode, insertedVnodeQueue, parentElm, refElm)
@@ -231,7 +232,7 @@ export function createPatchFunction (backend) {
 
   function initComponent (vnode, insertedVnodeQueue) {
     if (isDef(vnode.data.pendingInsert)) {
-      insertedVnodeQueue.push.apply(insertedVnodeQueue, vnode.data.pendingInsert)
+      insertedVnodeQueue.push.apply(insertedVnodeQueue, vnode.data.pendingInsert) // 初始化完成的子组件，push入queue
       vnode.data.pendingInsert = null
     }
     vnode.elm = vnode.componentInstance.$el
@@ -591,7 +592,7 @@ export function createPatchFunction (backend) {
       vnode.parent.data.pendingInsert = queue
     } else {
       for (let i = 0; i < queue.length; ++i) {
-        queue[i].data.hook.insert(queue[i])
+        queue[i].data.hook.insert(queue[i]) // 执行逻辑（队列）-- 执行时机，当组件都渲染完成了（包括子组件和子组件的子组件。。。）
       }
     }
   }
