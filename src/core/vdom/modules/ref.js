@@ -22,7 +22,7 @@ export function registerRef (vnode: VNodeWithData, isRemoval: ?boolean) {
   if (!isDef(key)) return
 
   const vm = vnode.context
-  const ref = vnode.componentInstance || vnode.elm
+  const ref = vnode.componentInstance || vnode.elm // 可能是一个组件实例 或者 dom
   const refs = vm.$refs
   if (isRemoval) {
     if (Array.isArray(refs[key])) {

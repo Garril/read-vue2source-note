@@ -40,7 +40,7 @@ export function initLifecycle (vm: Component) {
     }
     parent.$children.push(vm)
   }
-
+  // 初始化$parent、$children等
   vm.$parent = parent
   vm.$root = parent ? parent.$root : vm
 

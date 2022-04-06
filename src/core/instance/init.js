@@ -49,13 +49,15 @@ export function initMixin (Vue: Class<Component>) {
     }
     // expose real self
     vm._self = vm
-    initLifecycle(vm)
-    initEvents(vm)
-    initRender(vm)
+    initLifecycle(vm) // 1.初始化组件的父子关系
+    initEvents(vm) // 2.初始化组件事件
+    initRender(vm) // 3.初始化slot以及$createElement方法
     callHook(vm, 'beforeCreate')
-    initInjections(vm) // resolve injections before data/props
-    initState(vm)
-    initProvide(vm) // resolve provide after data/props
+    // resolve injections before data/props
+    initInjections(vm)  // 4.解析inject
+    initState(vm) // 5.初始化状态 响应式数据原理/method/watch
+    // resolve provide after data/props
+    initProvide(vm)  // 6.解析provide
     callHook(vm, 'created')
 
     /* istanbul ignore if */

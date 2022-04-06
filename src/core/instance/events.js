@@ -51,14 +51,15 @@ export function updateComponentListeners (
 
 export function eventsMixin (Vue: Class<Component>) {
   const hookRE = /^hook:/
+  // 新加 $on 方法（主要做的还是发布订阅）
   Vue.prototype.$on = function (event: string | Array<string>, fn: Function): Component {
     const vm: Component = this
     if (Array.isArray(event)) {
       for (let i = 0, l = event.length; i < l; i++) {
         vm.$on(event[i], fn)
       }
-    } else {
-      (vm._events[event] || (vm._events[event] = [])).push(fn)
+    } else { // 比如 绑定a事件，有很多函数fn1,fn2,fn3。它会维护成为类似: { a:[fn1,fn2,fn3] }这个样子
+      (vm._events[event] || (vm._events[event] = [])).push(fn) // vm._events[event]的event这个key，就是上面的a
       // optimize hook:event cost by using a boolean flag marked at registration
       // instead of a hash lookup
       if (hookRE.test(event)) {
@@ -134,7 +135,7 @@ export function eventsMixin (Vue: Class<Component>) {
       cbs = cbs.length > 1 ? toArray(cbs) : cbs
       const args = toArray(arguments, 1)
       const info = `event handler for "${event}"`
-      for (let i = 0, l = cbs.length; i < l; i++) {
+      for (let i = 0, l = cbs.length; i < l; i++) { // 循环执行
         invokeWithErrorHandling(cbs[i], vm, args, vm, info)
       }
     }
