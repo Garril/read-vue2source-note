@@ -82,7 +82,7 @@ function _update (oldVnode, vnode) {
 const emptyModifiers = Object.create(null)
 
 function normalizeDirectives (
-  dirs: ?Array<VNodeDirective>,
+  dirs: ?Array<VNodeDirective>, 
   vm: Component
 ): { [key: string]: VNodeDirective } {
   const res = Object.create(null)

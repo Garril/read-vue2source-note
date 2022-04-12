@@ -94,7 +94,10 @@ export function resolveAsyncComponent (
       // invoke callbacks only if this is not a synchronous resolve
       // (async resolves are shimmed as synchronous during SSR)
       if (!sync) {
-        forceRender(true)
+        // 会把结果放到 factory.resolved 上
+        forceRender(true) // 强制更新--核心：调了 $forceUpdate，会又去调到resolveAsyncComponent函数
+        // 里面就会对 factory.resolved 进行判断，非空，就 return factory.resolved
+        // 之后在 createComponent的 if(Ctor===undefined)就会去真正创建组件、初始化、渲染组件了
       } else {
         owners.length = 0
       }

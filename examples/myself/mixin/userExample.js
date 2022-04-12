@@ -21,7 +21,7 @@ var Component = Vue.extend({
   mixins: [myMixin]
 })
 
-var component = new Component() // => "hello from mixin!"
+var component = new Component() // =>  "hello from mixin!"
 
 
 // =================  使用例子二 ================================

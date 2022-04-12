@@ -129,13 +129,18 @@ export function createComponent (
     return
   }
 
-  // async component
+  // async component --- 异步组件
   let asyncFactory
-  if (isUndef(Ctor.cid)) {
-    asyncFactory = Ctor
-    Ctor = resolveAsyncComponent(asyncFactory, baseCtor)
+  if (isUndef(Ctor.cid)) { // 如果组件是一个函数 --- 异步组件一定是一个函数（新版本提供了return对象的写法）
+    asyncFactory = Ctor // asyncFactory就是那个函数
+
+    Ctor = resolveAsyncComponent(asyncFactory, baseCtor) // 是一个函数就调用 resolveAsyncComponent --- 会让asyncFactory马上执行
+    // 也就是 import('../components/xxx组件')，但是他执行不会马上返回结果，他返回一个promise
+    // 也正是因为他没有马上就得到返回值，所以 Ctor会是一个undefined。下面if可以通过
+    // 他加载完之后呢？看resolveAsyncComponent
+
     if (Ctor === undefined) {
-      // return a placeholder node for async component, which is rendered
+      // return a placeholder node for async component, which is rendered -- 先渲染一个异步组件的占位符，也就是个注释
       // as a comment node but preserves all the raw information for the node.
       // the information will be used for async server-rendering and hydration.
       return createAsyncPlaceholder(
