@@ -1,0 +1,36 @@
+<body>
+  <!-- v-slot在使用时，需要在template标签内，这点大家要注意。 -->
+  <div id="app">
+    <Test>
+      <template v-slot:header="gain"><!-- v-slot定义作用域插槽 -->
+        <div>
+          <h3>slot</h3>
+          <p> {{gain.msg}} </p>
+        </div>
+      </template>
+
+    </Test>
+  </div>
+
+  <template id="test">
+    <div>
+      <slot name="header" :msg="msg"></slot>
+      <p>这里是test组件</p>
+    </div>
+  </template>
+
+</body>
+<script>
+  Vue.component('Test', {
+    template: "#test",
+    data() {
+      return {
+        msg: '这里是头部'
+      }
+    }
+  });
+
+  new Vue({
+
+  }).$mount("#app")
+</script>

@@ -1,0 +1,40 @@
+<body>
+  <div id="app">
+    <Test>
+      <!-- 这里只是分开写了， 变量获取单独用了个slot-scope -->
+      <!-- 在组件使用时，通过slot-scope=“gain”,接收组件中slot标签上绑定的数据。 -->
+      <div slot="default" slot-scope="gain"><!--  作用域插槽的用法（slot-scope） -->
+        {{ gain.msg }}<!-- 通过gain.xxx就可以使用绑定数据了 -->
+      </div>
+
+    </Test>
+  </div>
+
+  <template id="test">
+    <div>
+<!-- test组件这里和 v-slot一样
+    在组件模板中书写所需slot插槽，并将当前组件的数据通过v-bind绑定在slot标签上。 -->
+      <slot name="default" :msg="msg"> </slot>
+      <p>这里是test组件</p>
+    </div>
+  </template>
+</body>
+
+<script>
+  new Vue({
+    el: "#app",
+    components: {
+
+      'Test': {
+        template: "#test",
+        data() {
+          return {
+            msg: "你好"
+          }
+        },
+      }
+
+    }
+
+  })
+</script>
